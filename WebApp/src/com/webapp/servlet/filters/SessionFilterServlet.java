@@ -45,13 +45,13 @@ public class SessionFilterServlet implements Filter {
 			
 			if (request != null && request instanceof HttpServletRequest) {				
 				sesion = ((HttpServletRequest) request).getSession();
-				uri = ((HttpServletRequest) request).getRequestURI();
+				uri = ((HttpServletRequest) request).getServletPath();
 				path = ((HttpServletRequest) request).getContextPath() + "/";
 				servicio = request.getParameter("servicio");
-				pagina = request.getParameter("pagina");
+				pagina = request.getParameter("pagina") != null ? request.getParameter("pagina") : uri;
 				log.info("CONTROL DE SESION: Servicio solicitado: " + servicio);
 			}
-			
+
 			UsuarioDTO usuario = null;
 
 			if (sesion != null) usuario = (UsuarioDTO) sesion.getAttribute("usuario");
@@ -69,45 +69,22 @@ public class SessionFilterServlet implements Filter {
 					|| Constantes.SERVICIOS.LOGOUT.equals(servicio)){
 				chain.doFilter(request, response);
 			}
-			/*Si la sesion a expirado o el usuario no tiene permisos para acceder a la pagina, redirigimos a la pagina de login*/
-			else if(usuario == null || sesion.isNew() || pagina == null
-					|| !usuario.validaPermisos(pagina)){
+			/*Si la sesion a expirado redirigimos a la pagina de login*/
+			else if(usuario == null || sesion.isNew() || pagina == null){
 				log.info("CONTROL DE SESION: Redirigiendo. La sesion ha expirado o no existe y no se está iniciando sesión");			
 				((HttpServletResponse)response).sendRedirect(path);
-			}				
+			}
+			/*Si el usuario no tiene permisos para acceder a la pagina, redirigimos a la pagina de error*/
+			else if (!usuario.validaPermisos(pagina)){				
+				String mensaje = "El usuario no tiene permisos para acceder a esta página";
+				
+				log.info("CONTROL DE SESION: Redirigiendo. "+mensaje);
+				request.setAttribute("mensaje", mensaje);					
+				request.getRequestDispatcher(Constantes.PANTALLAS.ERROR).forward(request, response);
+			}
 			else{
 				chain.doFilter(request, response);	
 			}
-
-			
-			
-//			/*Si la sesion es nueva (o a caducado) redirigimos a la página de login siempre y cuando no se esté accediendo ya o se esté llamando 
-//			 * al servicio de logeo*/			
-//			if (sesion == null || uri == null 
-//			|| ((usuario == null || sesion.isNew()) 
-//					&& !uri.contains(paginaLogin) && !uri.contains(paginaError)
-//					&& !Constantes.SERVICIOS.LOGIN.equals(servicio))) {
-//				log.info("CONTROL DE SESION: Redirigiendo. La sesion ha expirado o no existe y no se está iniciando sesión");			
-////				request.getRequestDispatcher(path + Constantes.PANTALLAS.LOGIN).forward(request, response);
-//				
-//				((HttpServletResponse)response).sendRedirect(path + Constantes.PANTALLAS.LOGIN);
-//				
-//			}
-//			else{
-//				/*Si el usuario no tiene permisos para acceder a la pagina solicitada, redirigimos a la pantalla de error*/
-//				if(usuario == null || pagina == null && !uri.contains(paginaLogin) && !uri.contains(paginaError) && !usuario.validaPermisos(pagina))){					
-//					log.info("CONTROL DE SESION: Redirigiendo. El usuario no tiene permisos para acceder a esta página");
-//					request.setAttribute("mensaje","Error: el usuario no tiene permisos para acceder a esta página");
-//					
-////					request.getRequestDispatcher(paginaError).forward(request, response);
-//					
-//					
-//					((HttpServletResponse)response).sendRedirect(path + Constantes.PANTALLAS.ERROR);
-//				}
-//				else{
-//					chain.doFilter(request, response);
-//				}
-//			}
 
 		} catch (Exception ex) {
 			log.error("CONTROL DE SESION: Error al redirigir a" + paginaLogin, ex);

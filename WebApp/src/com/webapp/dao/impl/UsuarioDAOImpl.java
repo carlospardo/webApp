@@ -23,9 +23,8 @@ public class UsuarioDAOImpl implements UsuarioDAO{
 
 	public UsuarioDTO dameUsuarioPorNombre(String nombreUsuario) throws Exception{
 		
-//		File fichero = new File(Constantes.REGISTRO.PATH);
 			
-		File fichero = new File(rutaApp + "\\WEB-INF\\registro\\usuarios.txt");
+		File fichero = new File(rutaApp + Constantes.REGISTRO.PATH);
 		
 		if(fichero != null && fichero.isFile() && fichero.canRead()){
 			CsvReader reader = new CsvReader(new FileReader(fichero), ',');

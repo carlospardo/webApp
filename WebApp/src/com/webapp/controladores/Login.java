@@ -1,4 +1,4 @@
-package com.webapp.servicios;
+package com.webapp.controladores;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,6 +43,8 @@ public class Login  implements Servicio{
 		String pagina = (String) request.getParameter("pagina");
 		String paginaDestino = null;
 		
+		log.info("Inicio servicio Login");
+		
 		
 		UsuarioDTO usuario = usuarioBO.validaLogin(nombreUsuario, password);
 		if(usuario != null){
@@ -55,15 +57,21 @@ public class Login  implements Servicio{
 				paginaDestino = pagina;
 			}
 			else{
-				request.setAttribute("mensaje","Error: el usuario no tiene permisos para acceder a esta página");
+				String mensaje = "El usuario no tiene permisos para acceder a esta página";
+				log.info(mensaje);
+				request.setAttribute("mensaje", mensaje);
+				
 				paginaDestino = Constantes.PANTALLAS.ERROR;
 			}
 		}
 		else{
-			request.setAttribute("mensaje","Error: el usuario no existe o la contraseña es incorrecta");
+			String mensaje = "El usuario no existe o la contraseña es incorrecta";
+			log.info(mensaje);
+			request.setAttribute("mensaje", mensaje);
 			paginaDestino = Constantes.PANTALLAS.ERROR;
 		}
 		request.getRequestDispatcher(paginaDestino).forward(request, response);
+		log.info("Fin servicio Login");
 	}
 
 	public UsuarioBO getUsuarioBO() {
@@ -72,5 +80,12 @@ public class Login  implements Servicio{
 
 	public void setUsuarioBO(UsuarioBO usuarioBO) {
 		this.usuarioBO = usuarioBO;
+	}
+
+	
+	public boolean validaPermisos(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		/*No hay ningun motivo aparente para que nadie no pueda acceder al servicio de login*/
+		return true;
 	}
 }

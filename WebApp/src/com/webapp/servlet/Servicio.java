@@ -8,5 +8,7 @@ public interface Servicio {
 	
 	public void inicializa(String rutaApp);
 	public void ejecutaServicio (HttpServletRequest request, HttpServletResponse response) throws Exception;
+	
+	public boolean validaPermisos (HttpServletRequest request, HttpServletResponse response) throws Exception;
 
 }

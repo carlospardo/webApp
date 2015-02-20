@@ -32,16 +32,26 @@ public class Servlet extends HttpServlet {
 		Servicio c1;
 		try {
 			
-			c1 = Factory.getInstance().getServicio("com.webapp.servicios."+servicio, rutaApp);
+			c1 = Factory.getInstance().getServicio("com.webapp.controladores."+servicio, rutaApp);
 			
 			if(c1!=null){
-				c1.ejecutaServicio(request, response);
+				
+				if (!c1.validaPermisos(request, response)){
+										
+					String mensaje = "El usuario no tiene permisos para acceder a esta página";
+					log.info(mensaje);
+					request.setAttribute("mensaje", mensaje);					
+					request.getRequestDispatcher(Constantes.PANTALLAS.ERROR).forward(request, response);
+				}
+				else{
+					c1.ejecutaServicio(request, response);
+				}
 				
 			}else{	
 				String mensaje = "Error no controlado";
 				request.setAttribute ("mensaje",mensaje); 
 				log.error("Envio mensaje de Error: " + mensaje);
-				request.getRequestDispatcher(Constantes.PANTALLAS.ERROR).forward(request, response);		
+				request.getRequestDispatcher(Constantes.PANTALLAS.ERROR).forward(request, response);
 			}
 			
 		}catch (Exception e) {
