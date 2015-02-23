@@ -69,7 +69,7 @@ public class SessionFilterServlet implements Filter {
 					|| Constantes.SERVICIOS.LOGOUT.equals(servicio)){
 				chain.doFilter(request, response);
 			}
-			/*Si la sesion a expirado redirigimos a la pagina de login*/
+			/*Si la sesion ha expirado redirigimos a la pagina de login*/
 			else if(usuario == null || sesion.isNew() || pagina == null){
 				log.info("CONTROL DE SESION: Redirigiendo. La sesion ha expirado o no existe y no se está iniciando sesión");			
 				((HttpServletResponse)response).sendRedirect(path);
