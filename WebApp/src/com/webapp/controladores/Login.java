@@ -12,6 +12,7 @@ import com.webapp.dto.UsuarioDTO;
 import com.webapp.servlet.Servlet;
 import com.webapp.servlet.Servicio;
 import com.webapp.utiles.Constantes;
+import com.webapp.utiles.StringUtiles;
 
 import javax.servlet.RequestDispatcher;
 
@@ -35,6 +36,7 @@ public class Login  implements Servicio{
 		usuarioBO.inicializa(rutaApp);		
 	}
 
+	
 	public void ejecutaServicio(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		
@@ -45,8 +47,10 @@ public class Login  implements Servicio{
 		
 		log.info("Inicio servicio Login");
 		
+		/*Ya que la contraseña es información muy sensible trabajamos con el hash de ésta*/
+		String hashPassword = StringUtiles.dameHash(password);
 		
-		UsuarioDTO usuario = usuarioBO.validaLogin(nombreUsuario, password);
+		UsuarioDTO usuario = usuarioBO.validaLogin(nombreUsuario, hashPassword);
 		if(usuario != null){
 			
 			/*Guardamos el objeto usuario en la sesion para poder realizar comprovaciones cada vez que lanza una petición*/
